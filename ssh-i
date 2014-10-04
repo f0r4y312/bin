@@ -1,0 +1,6 @@
+#!/bin/sh
+#
+# Install: ln -s ~/bin/ssh-i <IP|FQDN>
+# Usage: ./<IP|FQDN> PEMFILE USER
+
+ssh -i $1 $2@`basename $0`

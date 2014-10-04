@@ -1,0 +1,27 @@
+#! /bin/sh
+
+remote=$1
+if [ $# -eq 0 ]; then
+	echo "Usage: $0 [filename] command(s)"
+	echo
+	echo "Examples:"
+	echo "\t$0 origin fetch"
+	echo "\t$0 upstream pull"
+	echo "\t$0 remote -v"
+elif [ -f $remote ]; then
+	shift
+	grep -v '^#' $remote | while read dir
+	do
+		[ -z "$dir" ] && continue
+		cd $dir
+		if [ $? -eq 0 ]; then
+			echo
+			pwd
+			git $* $remote
+			cd ..
+		fi
+	done
+else
+	find -maxdepth 1 -type d -exec sh -c "cd '{}' && echo && pwd && git $*" \;
+fi
+
