@@ -5,8 +5,8 @@ if [ $# -eq 0 ]; then
 	echo "Usage: $0 [filename] command(s)"
 	echo
 	echo "Examples:"
-	echo "\t$0 origin fetch"
-	echo "\t$0 upstream pull"
+	echo "\t$0 origin pull"
+	echo "\t$0 upstream fetch"
 	echo "\t$0 remote -v"
 elif [ -f $remote ]; then
 	shift
