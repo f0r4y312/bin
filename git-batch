@@ -1,15 +1,15 @@
 #! /bin/sh
 
-remote=$1
+# loop over $@; store last arg in $remote
+for remote; do :; done
 if [ $# -eq 0 ]; then
 	echo "Usage: $0 [filename] command(s)"
 	echo
 	echo "Examples:"
-	echo "\t$0 origin pull"
-	echo "\t$0 upstream fetch"
+	echo "\t$0 pull origin"
+	echo "\t$0 fetch upstream"
 	echo "\t$0 remote -v"
 elif [ -f $remote ]; then
-	shift
 	grep -v '^#' $remote | while read dir
 	do
 		[ -z "$dir" ] && continue
@@ -17,7 +17,7 @@ elif [ -f $remote ]; then
 		if [ $? -eq 0 ]; then
 			echo
 			pwd
-			git $* $remote
+			git $*
 			cd ..
 		fi
 	done
