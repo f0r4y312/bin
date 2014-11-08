@@ -1,4 +1,6 @@
 #! /bin/sh
+#
+# set GIT_BATCH_STDERR to stderr (or stdout) to show errors from git
 
 # loop over $@; store last arg in $remote
 for remote; do :; done
@@ -12,16 +14,16 @@ if [ $# -eq 0 ]; then
 elif [ -f $remote ]; then
 	grep -v '^#' $remote | while read dir
 	do
-		[ -z "$dir" ] && continue
+		[ ! -d "$dir" ] && continue
 		cd $dir
 		if [ $? -eq 0 ]; then
 			echo
 			pwd
-			git $*
+			git $* 2>/dev/${GIT_BATCH_STDERR:-null}
 			cd ..
 		fi
 	done
 else
-	find -maxdepth 1 -type d -exec sh -c "cd '{}' && echo && pwd && git $*" \;
+	find -maxdepth 1 -type d -exec sh -c "cd '{}' && echo && pwd && git $* 2>/dev/${GIT_BATCH_STDERR:-null}" \; 
 fi
 
