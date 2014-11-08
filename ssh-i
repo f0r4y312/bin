@@ -1,6 +1,17 @@
 #!/bin/sh
 #
-# Install: ln -s ~/bin/ssh-i <IP|FQDN>
-# Usage: ./<IP|FQDN> PEMFILE USER
+# Install: ln -s ~/bin/s-i <IP|FQDN>
+# Usage: ./<IP|FQDN> cmd pemfile user
 
-ssh -i $1 $2@`basename $0`
+ip=`basename $0`
+cmd=${1:-ssh}
+pemfile=$2
+if [ ! -f "$pemfile" ]; then
+	user=$pemfile
+	pemfile=`echo $ip | cut -d . -f 2`.pem
+else
+	user=$3
+fi
+user=${user:-ubuntu}
+
+$cmd -i $pemfile $user@$ip
