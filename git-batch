@@ -2,28 +2,39 @@
 #
 # set GIT_BATCH_STDERR to stderr (or stdout) to show errors from git
 
-# loop over $@; store last arg in $remote
-for remote; do :; done
 if [ $# -eq 0 ]; then
-	echo "Usage: $0 [filename] command(s)"
+	script=`basename $0`
+	echo "Usage: $script [OPTION] COMMAND [FILE]"
+	echo "Iterate git commands over immediate sub-directories"
+	echo
+	echo "  -f, --force           Force using last arg as a git command param"
 	echo
 	echo "Examples:"
-	echo "\t$0 pull origin"
-	echo "\t$0 fetch upstream"
-	echo "\t$0 remote -v"
-elif [ -f $remote ]; then
-	grep -v '^#' $remote | while read dir
-	do
-		[ ! -d "$dir" ] && continue
-		cd $dir
-		if [ $? -eq 0 ]; then
-			echo
-			pwd
-			git $* 2>/dev/${GIT_BATCH_STDERR:-null}
-			cd ..
-		fi
-	done
+	echo "  $script status             Show status for all repos"
+	echo "  $script -f fetch upstream  Fetch from remote 'upstream' for all repos"
+	echo "  $script pull origin        Pull from remote 'origin' for all repos, limit to repos listed in file 'origin' if it exists"
 else
-	find -maxdepth 1 -type d -exec sh -c "cd '{}' && echo && pwd && git $* 2>/dev/${GIT_BATCH_STDERR:-null}" \; 
+	if [ "$1" = '-f' ] || [ "$1" = '--force' ]; then
+		shift
+		unset remote
+	else
+		# loop over $@; store last arg in $remote
+		for remote; do :; done
+	fi
+	if [ -n "$remote" ] && [ -f "$remote" ]; then
+		grep -v '^#' "$remote" | while read dir
+		do
+			[ ! -d "$dir" ] && continue
+			cd "$dir"
+			if [ $? -eq 0 ]; then
+				echo
+				pwd
+				git $* 2>/dev/${GIT_BATCH_STDERR:-null}
+				cd ..
+			fi
+		done
+	else
+		find -maxdepth 1 -type d -exec sh -c "cd '{}' && echo && pwd && git $* 2>/dev/${GIT_BATCH_STDERR:-null}" \; 
+	fi
 fi
 
