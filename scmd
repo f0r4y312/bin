@@ -1,7 +1,27 @@
 #!/bin/sh
 #
-# Install: ln -s ~/bin/s-i <IP|FQDN>
-# Usage: ./<IP|FQDN> cmd pemfile user
+# scmd: Simplify connecting to AWS EC2-like remote machines
+# set SCMD_DEFAULT_USER to override default 'ubuntu' when not specified
+
+if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
+	 echo "Install: ln -s ~/bin/scmd <IP|FQDN>"
+	 echo "Usage: ./<IP|FQDN> [COMMAND] [PEMFILE] [USER]"
+	 echo "Simplify connecting to AWS EC2-like remote machines"
+	 echo
+	 echo "Examples:"
+	 echo "  ./ec2-0-0-0-0.us-west-1.compute.amazonaws.com =>"
+	 echo "  ssh -i us-west-1.pem ubuntu@ec2-0-0-0-0.us-west-1.compute.amazonaws.com"
+	 echo
+	 echo "  ./ec2-0-0-0-0.us-east-1.compute.amazonaws.com sftp =>"
+	 echo "  sftp -i us-east-1.pem ubuntu@ec2-0-0-0-0.us-east-1.compute.amazonaws.com"
+	 echo
+	 echo "  ./ec2-0-0-0-0.us-west-1.compute.amazonaws.com ssh ec2-user =>"
+	 echo "  ssh -i us-west-1.pem ec2-user@ec2-0-0-0-0.us-west-1.compute.amazonaws.com"
+	 echo
+	 echo "  ./ec2-0-0-0-0.us-east-1.compute.amazonaws.com ssh foobar.pem ec2-user =>"
+	 echo "  ssh -i foobar.pem ec2-user@ec2-0-0-0-0.us-east-1.compute.amazonaws.com"
+	 exit
+fi
 
 ip=`basename $0`
 cmd=${1:-ssh}
@@ -12,6 +32,7 @@ if [ ! -f "$pemfile" ]; then
 else
 	user=$3
 fi
-user=${user:-ubuntu}
+default_user=${SCMD_DEFAULT_USER:-ubuntu}
+user=${user:-$default_user}
 
 $cmd -i $pemfile $user@$ip
