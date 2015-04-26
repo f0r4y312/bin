@@ -1,5 +1,6 @@
 #! /bin/sh
 #
+# git-batch: Iterate git commands over immediate sub-directories
 # set GIT_BATCH_STDERR to stderr (or stdout) to show errors from git
 
 if [ $# -eq 0 ]; then
