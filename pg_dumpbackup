@@ -5,28 +5,29 @@
 
 dburl=${1:-$DATABASE_URL}
 if [ "$1" = '-h' ] || [ "$1" = '--help' ] || [ -z "$dburl" ]; then
-	 echo "Usage: pg_dumpbackup postgres://username[:password]@host:port/database[|DATABASE_URL] [BACKUP FILENAME]"
+	 echo "Usage: pg_dumpbackup postgres://username[:password]@host:port/database[|\$DATABASE_URL] [BACKUP FILENAME]"
      echo "Shortcut for pg_dump backups using database urls"
 	 exit
 fi
 
-db=`echo $dburl | cut -d / -f 4 -`
-cnxn=`echo $dburl | cut -d / -f 3 -`
-if [ `echo $cnxn | grep '@' -` ]; then
-	userpass=`echo $cnxn | cut -d @ -f 1`
-	hostport=`echo $cnxn | cut -d @ -f 2`
+cnxn=${dburl%/*}
+cnxn=${cnxn##*/}
+db=${dburl##*/}
+if [ "$cnxn" != "${cnxn#*\@}" ]; then
+	userpass=${cnxn%\@*}
+	hostport=${cnxn#*\@}
 else
 	userpass=postgres
 	hostport=$cnxn
 fi
-username=`echo $userpass | cut -d : -f 1`
-if [ `echo $hostport | grep ':' -` ]; then
-	host=`echo $hostport | cut -d : -f 1`
-	port=`echo $hostport | cut -d : -f 2`
+user=${userpass%%\:*}
+if [ "$hostport" != "${hostport#*\:}" ]; then
+	host=${hostport%\:*}
+	port=${hostport##*\:}
 else
 	host=$hostport
 	port=5432
 fi
-backup=${2:-${db}-${host}-${port}}
-echo "Backup postgres://${username}@${host}:${port}/${db}"
-pg_dump -cCO -d $db -h $host -p $port -U $username | gzip -c - > "${backup}-$(date '+%Y%m%d-%H%M%S').sql.gz"
+backup=${2:-${db}-${host}}
+echo "Backup postgres://${user}@${host}:${port}/${db}"
+pg_dump -cCO -d $db -h $host -p $port -U $user | gzip -c - > "${backup}-$(date '+%Y%m%d-%H%M%S').sql.gz"
