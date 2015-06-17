@@ -24,15 +24,31 @@ if [ "$1" = '-h' ] || [ "$1" = '--help' ]; then
 fi
 
 ip=`basename $0`
-cmd=${1:-ssh}
-pemfile=$2
-if [ ! -f "$pemfile" ]; then
-	user=$pemfile
-	pemfile=`echo $ip | cut -d . -f 2`.pem
-else
-	user=$3
-fi
-default_user=${SCMD_DEFAULT_USER:-ubuntu}
-user=${user:-$default_user}
 
-$cmd -i $pemfile $user@$ip
+cmd=$1
+if [ -n "$cmd" ]; then
+	shift
+else
+	cmd=ssh
+fi
+
+pemfile=$1
+if [ -f "$pemfile" ]; then
+	shift
+else
+	pemfile=`echo $ip | cut -d . -f 2`.pem
+fi
+
+user=$1
+if [ -n "$user" ]; then
+	shift
+else
+	default_user=${SCMD_DEFAULT_USER:-ubuntu}
+	user=${user:-$default_user}
+fi
+
+if [ ! -f "$pemfile" ]; then
+	$cmd $user@$ip $*
+else
+	$cmd -i $pemfile $user@$ip $*
+fi
