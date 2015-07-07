@@ -8,7 +8,7 @@ if [ $# -eq 0 ]; then
 	echo "Usage: $script [OPTION] COMMAND [FILE]"
 	echo "Iterate git commands over immediate sub-directories"
 	echo
-	echo "  -f, --force           Force using last arg as a git command param"
+	echo "  -f, --force           Force using all args as a git command params"
 	echo
 	echo "Examples:"
 	echo "  $script status             Show status for all repos"
@@ -19,8 +19,10 @@ else
 		shift
 		unset remote
 	else
-		# loop over $@; store last arg in $remote
-		for remote; do :; done
+		# loop over $@; store first arg that exists as a file in $remote
+		for remote; do
+			if [ -f "$remote" ]; then break; fi
+		done
 	fi
 	if [ -n "$remote" ] && [ -f "$remote" ]; then
 		grep -v '^#' "$remote" | while read dir
