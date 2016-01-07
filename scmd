@@ -51,4 +51,8 @@ if [ ! -f "$pemfile" ]; then
 	$cmd $user@$ip $*
 else
 	$cmd -i $pemfile $user@$ip $*
+	if [ $? -ne 0 ]; then
+		ip=`echo $ip | cut -d . -f 1,3-`
+		$cmd -i $pemfile $user@$ip $*
+	fi
 fi
